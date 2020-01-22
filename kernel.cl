@@ -1,6 +1,9 @@
 #include <jrand.cl>
 
-
+inline uint next(unsigned long* seed, int bits) {
+    *seed = (*seed * 0x5DEECE66DUL + 0xBUL) & ((1UL << 48) - 1);
+    return *seed >> (48 - bits);
+}
 
 __kernel void start(ulong offset, ulong stride, __global ulong *seeds, __global ushort *ret) {
   size_t id = get_global_id(0);
@@ -14,11 +17,12 @@ __kernel void start(ulong offset, ulong stride, __global ulong *seeds, __global 
     ulong seed = worldSeed;
     Random r;
     set_internal_seed(&r, seed);
-    
+
             if(random_next(&r, 7) != 19)continue;
             if(random_next(&r, 4) != 7)continue;
+
             unsigned long tempSeed = (seed * 21586261248413UL + 164331561754775UL) & 281474976710655UL;
-            if(random_next(&tempSeed, 4) != 15)continue;
+            if(next(&tempSeed, 4) != 15)continue;
             
             if(random_next(&r, 1) != 1)continue;
             if(random_next(&r, 1) != 1)continue;
